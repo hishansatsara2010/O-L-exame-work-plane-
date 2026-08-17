@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Hishan Study OS 2026</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖥️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#050507;
+  --bg2:#0a0b12;
+  --panel:#0d0f1a;
+  --panel2:#111321;
+  --slate:#1b2140;
+  --slate-light:#262c52;
+  --border:#20233a;
+  --gold:#d4af37;
+  --gold-bright:#f2ce5c;
+  --cyan:#3fe8d7;
+  --red:#ff5c72;
+  --orange:#ffb454;
+  --green:#3ddc97;
+  --text:#eae8f2;
+  --muted:#8b8fa8;
+  --muted2:#5c6080;
+  --font-display:'Space Grotesk', sans-serif;
+  --font-body:'Inter', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-body);}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212,175,55,0.08), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(63,232,215,0.06), transparent),
+    var(--bg);
+  overflow-x:hidden;
+}
+h1,h2,h3,h4,.font-display{font-family:var(--font-display);}
+.font-mono{font-family:var(--font-mono);}
+::-webkit-scrollbar{width:8px; height:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--slate-light); border-radius:4px;}
+a{color:inherit;}
+button{font-family:inherit; cursor:pointer;}
+input,select,textarea{font-family:inherit; background:var(--panel2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px 10px; outline:none; width:100%;}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);}
+input[type="checkbox"]{width:auto;}
+
+/* ---------- Layout ---------- */
+#app{display:flex; min-height:100vh;}
+.sidebar{
+  width:220px; flex-shrink:0; background:linear-gradient(180deg,var(--panel),var(--bg2));
+  border-right:1px solid var(--border); padding:18px 12px; position:sticky; top:0; height:100vh; overflow-y:auto;
+  display:flex; flex-direction:column; gap:4px; z-index:40;
+}
+.brand{padding:6px 10px 18px 10px;}
+.brand .os-tag{font-size:10px; letter-spacing:3px; color:var(--gold); text-transform:uppercase;}
+.brand h1{font-size:18px; margin:2px 0 0 0; line-height:1.15;}
+.brand .sub{font-size:11px; color:var(--muted2); margin-top:4px;}
+.nav-item{
+  display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; color:var(--muted);
+  font-size:13.5px; font-weight:500; border:1px solid transparent; background:none; text-align:left; width:100%;
+  transition:all .15s ease;
+}
+.nav-item:hover{background:var(--panel2); color:var(--text);}
+.nav-item.active{background:linear-gradient(90deg, rgba(212,175,55,0.14), rgba(212,175,55,0.02)); color:var(--gold-bright); border-color:rgba(212,175,55,0.25);}
+.nav-item .ic{font-size:16px; width:18px; text-align:center;}
+.nav-divider{font-size:10px; text-transform:uppercase; letter-spacing:2px; color:var(--muted2); padding:14px 12px 4px;}
+
+.main{flex:1; min-width:0; padding:22px 26px 90px 26px;}
+.topbar{display:flex; justify-content:space-between; align-items:center; gap:14px; margin-bottom:20px; flex-wrap:wrap;}
+.mode-switch{display:flex; background:var(--panel2); border:1px solid var(--border); border-radius:12px; padding:4px; gap:4px;}
+.mode-btn{padding:8px 16px; border-radius:9px; border:none; background:none; color:var(--muted); font-size:13px; font-weight:600;}
+.mode-btn.active-study{background:linear-gradient(135deg,var(--cyan),#1fa89a); color:#00201c;}
+.mode-btn.active-work{background:linear-gradient(135deg,var(--gold),#a9791f); color:#241a02;}
+
+.clock-chip{font-family:var(--font-mono); background:var(--panel2); border:1px solid var(--border); border-radius:12px; padding:8px 16px; font-size:14px; display:flex; gap:10px; align-items:center;}
+.clock-chip .t{color:var(--gold-bright); font-weight:700; font-size:16px;}
+.clock-chip .d{color:var(--muted);}
+
+.card{background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:18px; position:relative; overflow:hidden;}
+.card::before{content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg, transparent, rgba(212,175,55,0.4), transparent);}
+.grid{display:grid; gap:16px;}
+.g4{grid-template-columns:repeat(4,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g2{grid-template-columns:repeat(2,1fr);}
+@media(max-width:1000px){.g4{grid-template-columns:repeat(2,1fr);} .g3{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:640px){.g4,.g3,.g2{grid-template-columns:1fr;}}
+
+.stat-label{font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:var(--muted); margin-bottom:6px;}
+.stat-val{font-size:28px; font-weight:700; font-family:var(--font-display);}
+.pill{display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600;}
+.pill-red{background:rgba(255,92,114,0.14); color:var(--red);}
+.pill-orange{background:rgba(255,180,84,0.14); color:var(--orange);}
+.pill-green{background:rgba(61,220,151,0.14); color:var(--green);}
+.pill-gold{background:rgba(212,175,55,0.14); color:var(--gold-bright);}
+.pill-cyan{background:rgba(63,232,215,0.14); color:var(--cyan);}
+
+.btn{background:var(--slate); border:1px solid var(--border); color:var(--text); padding:9px 16px; border-radius:10px; font-size:13px; font-weight:600; transition:.15s;}
+.btn:hover{background:var(--slate-light);}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#a9791f); color:#241a02; border:none;}
+.btn-cyan{background:linear-gradient(135deg,var(--cyan),#1fa89a); color:#00201c; border:none;}
+.btn-danger{background:rgba(255,92,114,0.14); color:var(--red); border:1px solid rgba(255,92,114,0.3);}
+.btn-sm{padding:6px 10px; font-size:12px; border-radius:8px;}
+.btn:disabled{opacity:.5; cursor:not-allowed;}
+
+.section{display:none; animation:fadein .25s ease;}
+.section.active{display:block;}
+@keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+.progress-track{height:8px; background:var(--panel2); border-radius:6px; overflow:hidden; border:1px solid var(--border);}
+.progress-fill{height:100%; border-radius:6px; transition:width .4s ease;}
+
+table{width:100%; border-collapse:collapse; font-size:13px;}
+th{text-align:left; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:1px; padding:8px 10px; border-bottom:1px solid var(--border);}
+td{padding:9px 10px; border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:none;}
+
+.tab-row{display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; margin-bottom:16px;}
+.tab-chip{white-space:nowrap; padding:8px 14px; border-radius:10px; background:var(--panel2); border:1px solid var(--border); color:var(--muted); font-size:12.5px; font-weight:600;}
+.tab-chip.active{background:rgba(212,175,55,0.14); color:var(--gold-bright); border-color:rgba(212,175,55,0.3);}
+
+.kanban-col{background:var(--panel2); border:1px solid var(--border); border-radius:14px; padding:12px; min-height:200px;}
+.kanban-card{background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:10px; margin-bottom:8px; font-size:13px; cursor:grab;}
+.kanban-card:active{cursor:grabbing;}
+
+.sticky{background:linear-gradient(160deg, #2a2410, #17140a); border:1px solid rgba(212,175,55,0.25); border-radius:12px; padding:14px; font-size:13px; min-height:110px; position:relative;}
+.sticky.c-cyan{background:linear-gradient(160deg,#0e2926,#081714); border-color:rgba(63,232,215,0.25);}
+.sticky.c-red{background:linear-gradient(160deg,#2a0e15,#170a0d); border-color:rgba(255,92,114,0.25);}
+.sticky.c-slate{background:linear-gradient(160deg,#1b2140,#11132a); border-color:rgba(38,44,82,0.6);}
+
+.timer-ring{position:relative; width:220px; height:220px; margin:0 auto;}
+.timer-ring svg{transform:rotate(-90deg);}
+.timer-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+.timer-center .tt{font-family:var(--font-mono); font-size:38px; font-weight:700; color:var(--gold-bright);}
+.timer-center .tl{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-top:4px;}
+
+.toast-wrap{position:fixed; bottom:20px; right:20px; z-index:200; display:flex; flex-direction:column; gap:8px;}
+.toast{background:var(--panel); border:1px solid var(--gold); border-radius:10px; padding:12px 16px; font-size:13px; box-shadow:0 10px 30px rgba(0,0,0,.5); animation:slidein .3s ease;}
+@keyframes slidein{from{transform:translateX(30px); opacity:0;} to{transform:translateX(0); opacity:1;}}
+
+.checklist-item{display:flex; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px solid var(--border);}
+.checklist-item:last-child{border-bottom:none;}
+.checklist-item.done .txt{text-decoration:line-through; color:var(--muted2);}
+
+.badge-dot{width:8px; height:8px; border-radius:50%; display:inline-block;}
+
+.mobile-nav{display:none;}
+@media(max-width:880px){
+  .sidebar{position:fixed; left:0; top:0; bottom:0; transform:translateX(-105%); transition:transform .25s ease; box-shadow:20px 0 40px rgba(0,0,0,.5);}
+  .sidebar.open{transform:translateX(0);}
+  .main{padding:16px 14px 100px 14px;}
+  .mobile-nav{display:flex; position:fixed; bottom:0; left:0; right:0; background:var(--panel); border-top:1px solid var(--border); z-index:60; padding:8px 4px calc(env(safe-area-inset-bottom) + 8px) 4px; justify-content:space-around;}
+  .mobile-nav button{background:none; border:none; color:var(--muted); font-size:9px; display:flex; flex-direction:column; align-items:center; gap:3px; padding:4px 2px; flex:1;}
+  .mobile-nav button.active{color:var(--gold-bright);}
+  .mobile-nav .ic{font-size:18px;}
+  .menu-toggle{display:flex; background:var(--panel2); border:1px solid var(--border); border-radius:10px; padding:9px 12px;}
+  .backdrop{display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:39;}
+  .backdrop.show{display:block;}
+}
+@media(min-width:881px){.menu-toggle{display:none;}}
+
+.empty-state{text-align:center; padding:30px 10px; color:var(--muted2); font-size:13px;}
+.small{font-size:12px; color:var(--muted);}
+.flex{display:flex;}
+.gap8{gap:8px;} .gap12{gap:12px;}
+.between{justify-content:space-between;}
+.center{align-items:center;}
+.wrap{flex-wrap:wrap;}
+.mb8{margin-bottom:8px;} .mb12{margin-bottom:12px;} .mb16{margin-bottom:16px;} .mb20{margin-bottom:20px;}
+.mt8{margin-top:8px;} .mt12{margin-top:12px;} .mt16{margin-top:16px;}
+hr.div{border:none; border-top:1px solid var(--border); margin:16px 0;}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="os-tag">Hishan Study OS</div>
+      <h1>2026 <span style="color:var(--gold-bright)">HUD</span></h1>
+      <div class="sub" id="brandSub">Grade 11 &middot; O/L Command Center</div>
+    </div>
+    <div class="nav-divider">Core</div>
+    <button class="nav-item" data-tab="dashboard"><span class="ic">🖥️</span>Dashboard</button>
+    <button class="nav-item" data-tab="timetable"><span class="ic">🗓️</span>Timetable</button>
+    <button class="nav-item" data-tab="timers"><span class="ic">⏱️</span>Timers & Alarms</button>
+    <button class="nav-item" data-tab="marks"><span class="ic">📊</span>Marks & Papers</button>
+    <button class="nav-item" data-tab="subjects"><span class="ic">📚</span>Subjects</button>
+    <div class="nav-divider">Work Mode</div>
+    <button class="nav-item" data-tab="workspace"><span class="ic">💼</span>Trading & Dev</button>
+    <div class="nav-divider">Toolkit</div>
+    <button class="nav-item" data-tab="notes"><span class="ic">📝</span>Notes & Tools</button>
+    <button class="nav-item" data-tab="analytics"><span class="ic">📈</span>Analytics</button>
+    <button class="nav-item" data-tab="settings"><span class="ic">⚙️</span>Settings</button>
+  </div>
+  <div class="backdrop" id="backdrop"></div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="flex gap12 center">
+        <button class="menu-toggle btn" id="menuToggle">☰</button>
+        <div>
+          <div style="font-size:13px;color:var(--muted)">Welcome back,</div>
+          <div style="font-size:19px;font-weight:700;font-family:var(--font-display)" id="greetName">Hishan Satsara</div>
+        </div>
+      </div>
+      <div class="flex gap12 center wrap">
+        <div class="clock-chip"><span class="t" id="liveClock">--:--:--</span><span class="d" id="liveDate">-</span></div>
+        <div class="mode-switch">
+          <button class="mode-btn" id="btnStudyMode">📚 Study</button>
+          <button class="mode-btn" id="btnWorkMode">💻 Work</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section class="section" id="tab-dashboard">
+      <div class="grid g4 mb16">
+        <div class="card">
+          <div class="stat-label">O/L Countdown</div>
+          <div class="stat-val" id="olCountdown" style="color:var(--gold-bright)">--</div>
+          <div class="small mt8" id="olCountdownSub">days &middot; hrs &middot; min left</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Focus Score</div>
+          <div class="stat-val" id="focusScoreVal" style="color:var(--cyan)">0%</div>
+          <div class="progress-track mt8"><div class="progress-fill" id="focusScoreBar" style="width:0%;background:var(--cyan)"></div></div>
+        </div>
+        <div class="card">
+          <div class="stat-label">🔥 Streak</div>
+          <div class="stat-val" id="streakVal" style="color:var(--orange)">0 days</div>
+          <div class="small mt8">Study on consecutive days</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">😴 Last Sleep</div>
+          <div class="stat-val" id="sleepVal" style="color:var(--green)">-- h</div>
+          <div class="small mt8" id="sleepSub">Not logged today</div>
+        </div>
+      </div>
+
+      <div class="grid g2 mb16">
+        <div class="card">
+          <div class="flex between center mb12">
+            <h3 style="margin:0">🚨 Priority Subject Alerts</h3>
+            <span class="pill pill-red">Critical &lt; 45</span>
+          </div>
+          <div id="priorityAlerts"></div>
+        </div>
+        <div class="card">
+          <div class="flex between center mb12">
+            <h3 style="margin:0">✅ Today's Tasks</h3>
+            <button class="btn btn-sm btn-gold" id="quickAddTaskBtn">+ Add</button>
+          </div>
+          <div id="todayTasksList"></div>
+        </div>
+      </div>
+
+      <div class="grid g2">
+        <div class="card">
+          <h3 style="margin-top:0">📆 Today's Schedule</h3>
+          <div id="todayScheduleList"></div>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">💧 Wellness Reminders</h3>
+          <div class="small mb12">Auto-alerts fire while this tab is open.</div>
+          <div class="flex gap8 wrap">
+            <span class="pill pill-cyan">💧 Water every 60 min</span>
+            <span class="pill pill-orange">📵 Off TikTok/FB alert every 90 min</span>
+            <span class="pill pill-green">🧍 Stretch break every 45 min</span>
+          </div>
+          <hr class="div">
+          <div class="flex between center">
+            <span class="small">Distraction-block alerts</span>
+            <label class="flex gap8 center"><input type="checkbox" id="wellnessToggle" checked style="width:16px;height:16px"></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIMETABLE -->
+    <section class="section" id="tab-timetable">
+      <div class="card mb16">
+        <h3 style="margin-top:0">🤖 AI Smart Scheduler</h3>
+        <div class="small mb12">Set your sleep/wake window and the scheduler auto-fills remaining hours with Pomodoro study blocks around your fixed tuition classes, prioritising your weakest subjects.</div>
+        <div class="grid g4">
+          <div>
+            <div class="stat-label">Sleep Time</div>
+            <input type="time" id="sleepTimeInput" value="23:00">
+          </div>
+          <div>
+            <div class="stat-label">Wake Time</div>
+            <input type="time" id="wakeTimeInput" value="05:30">
+          </div>
+          <div>
+            <div class="stat-label">Pomodoro Style</div>
+            <select id="pomodoroStyleSelect">
+              <option value="25">25/5 — Short Sprint</option>
+              <option value="50">50/10 — Deep Work</option>
+            </select>
+          </div>
+          <div>
+            <div class="stat-label">Tech/Trading Slot</div>
+            <select id="techSlotSelect">
+              <option value="1.5">1.5 hrs</option>
+              <option value="2">2 hrs</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-gold mt16" id="generateTimetableBtn">⚡ Generate Today's Timetable</button>
+      </div>
+
+      <div class="tab-row" id="dayTabRow"></div>
+
+      <div class="card">
+        <div class="flex between center mb12">
+          <h3 style="margin:0">Schedule</h3>
+          <span class="small">Tap a block's checkbox once complete</span>
+        </div>
+        <div id="timetableList"></div>
+      </div>
+    </section>
+
+    <!-- TIMERS -->
+    <section class="section" id="tab-timers">
+      <div class="grid g2 mb16">
+        <div class="card">
+          <h3 style="margin-top:0;text-align:center">Pomodoro Timer</h3>
+          <div class="flex gap8 center" style="justify-content:center" >
+            <button class="tab-chip" id="pomo25Btn">25 / 5</button>
+            <button class="tab-chip" id="pomo50Btn">50 / 10</button>
+            <button class="tab-chip" id="pomoCustomBtn">Custom</button>
+          </div>
+          <div id="pomoCustomInputs" class="flex gap8 mt12" style="display:none;justify-content:center">
+            <input type="number" id="customWorkMin" placeholder="Work min" style="width:110px" min="1">
+            <input type="number" id="customBreakMin" placeholder="Break min" style="width:110px" min="1">
+          </div>
+          <div class="timer-ring mt16">
+            <svg width="220" height="220">
+              <circle cx="110" cy="110" r="98" stroke="#1b2140" stroke-width="12" fill="none"/>
+              <circle cx="110" cy="110" r="98" stroke="url(#gradGold)" stroke-width="12" fill="none" stroke-linecap="round" id="pomoProgressCircle" stroke-dasharray="616" stroke-dashoffset="0"/>
+              <defs><linearGradient id="gradGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#d4af37"/><stop offset="100%" stop-color="#3fe8d7"/></linearGradient></defs>
+            </svg>
+            <div class="timer-center">
+              <div class="tt" id="pomoDisplay">25:00</div>
+              <div class="tl" id="pomoPhaseLabel">Focus</div>
+            </div>
+          </div>
+          <div class="flex gap8 mt16" style="justify-content:center">
+            <select id="pomoSubjectSelect" style="max-width:150px"></select>
+            <button class="btn btn-gold" id="pomoStartBtn">Start</button>
+            <button class="btn" id="pomoPauseBtn">Pause</button>
+            <button class="btn btn-danger" id="pomoResetBtn">Reset</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top:0;text-align:center">Stopwatch — Study Hour Tracker</h3>
+          <div class="timer-ring mt16" style="width:auto">
+            <div style="text-align:center">
+              <div class="tt font-mono" id="stopwatchDisplay" style="font-size:44px">00:00:00</div>
+            </div>
+          </div>
+          <div class="flex gap8 mt16" style="justify-content:center">
+            <select id="stopwatchSubjectSelect" style="max-width:150px"></select>
+            <select id="stopwatchTypeSelect" style="max-width:110px">
+              <option value="study">Study</option>
+              <option value="work">Work</option>
+            </select>
+          </div>
+          <div class="flex gap8 mt16" style="justify-content:center">
+            <button class="btn btn-cyan" id="swStartBtn">Start</button>
+            <button class="btn" id="swPauseBtn">Pause</button>
+            <button class="btn btn-gold" id="swSaveBtn">Save Log</button>
+          </div>
+          <hr class="div">
+          <div class="stat-label">Today's Logged Hours</div>
+          <div id="todayLoggedHours" class="small mt8"></div>
+        </div>
+      </div>
+
+      <div class="grid g2">
+        <div class="card">
+          <div class="flex between center mb12">
+            <h3 style="margin:0">⏰ Alarms & Reminders</h3>
+          </div>
+          <div class="grid g3 mb12">
+            <input type="time" id="newAlarmTime">
+            <input type="text" id="newAlarmLabel" placeholder="Label e.g. Get off TikTok">
+            <button class="btn btn-gold" id="addAlarmBtn">+ Add Alarm</button>
+          </div>
+          <div id="alarmsList"></div>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">🔔 Quick Presets</h3>
+          <div class="small mb12">One tap to add a common reminder for today.</div>
+          <div class="flex gap8 wrap">
+            <button class="btn btn-sm" data-preset="06:30|Morning Alarm">🌅 Morning Alarm 6:30</button>
+            <button class="btn btn-sm" data-preset="18:55|ICT Class Reminder">💻 ICT Class 6:55</button>
+            <button class="btn btn-sm" data-preset="12:45|Science Class Reminder">🔬 Science Class 12:45</button>
+            <button class="btn btn-sm" data-preset="14:45|Maths Class Reminder">➗ Maths Class 2:45</button>
+            <button class="btn btn-sm" data-preset="18:45|Science Class Reminder">🔬 Sci Sun 6:45</button>
+            <button class="btn btn-sm" data-preset="20:00|Drink Water">💧 Drink Water</button>
+            <button class="btn btn-sm" data-preset="21:00|Off TikTok/FB Focus Alert">📵 Off TikTok/FB</button>
+            <button class="btn btn-sm" data-preset="21:30|Past Paper Reminder">📄 Past Paper Reminder</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MARKS -->
+    <section class="section" id="tab-marks">
+      <div class="card mb16">
+        <div class="flex between center mb12 wrap gap12">
+          <h3 style="margin:0">📊 Marks Dashboard</h3>
+          <div class="flex gap8">
+            <span class="pill pill-red">Red = Weak (&lt;45)</span>
+            <span class="pill pill-orange">Orange = Average (45-59)</span>
+            <span class="pill pill-green">Green = Strong (60+)</span>
+          </div>
+        </div>
+        <div id="marksTableWrap"></div>
+      </div>
+
+      <div class="card mb16">
+        <h3 style="margin-top:0">🎯 Set Target Marks — December O/L</h3>
+        <div id="targetMarksForm" class="grid g4"></div>
+      </div>
+
+      <div class="card">
+        <div class="flex between center mb12">
+          <h3 style="margin:0">📄 Past Paper Tracker</h3>
+          <span class="small">Focus begins next month</span>
+        </div>
+        <div class="grid g4 mb12">
+          <select id="ppSubjectSelect"></select>
+          <input type="text" id="ppYearInput" placeholder="Year e.g. 2023">
+          <input type="number" id="ppMarksInput" placeholder="Marks /100" min="0" max="100">
+          <button class="btn btn-gold" id="ppAddBtn">+ Add Paper</button>
+        </div>
+        <div id="pastPapersList"></div>
+      </div>
+    </section>
+
+    <!-- SUBJECTS -->
+    <section class="section" id="tab-subjects">
+      <div class="tab-row" id="subjectTabRow"></div>
+      <div class="card" id="subjectDetailCard"></div>
+    </section>
+
+    <!-- WORKSPACE (work mode) -->
+    <section class="section" id="tab-workspace">
+      <div class="card mb16">
+        <h3 style="margin-top:0">💹 Trading Journal</h3>
+        <div class="grid g4 mb12">
+          <input type="text" id="tradePairInput" placeholder="Pair e.g. EUR/USD">
+          <input type="text" id="tradeRRInput" placeholder="Risk:Reward e.g. 1:3">
+          <input type="text" id="tradePnlInput" placeholder="P/L e.g. +2.4%">
+          <button class="btn btn-gold" id="addTradeBtn">+ Log Trade</button>
+        </div>
+        <textarea id="tradeNotesInput" placeholder="Trade notes / setup reasoning..." rows="2" class="mb12"></textarea>
+        <div class="mb12">
+          <div class="stat-label">TradingView Embed Link (optional)</div>
+          <input type="text" id="tvLinkInput" placeholder="https://www.tradingview.com/chart/...">
+        </div>
+        <div id="tradeList"></div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0">🛠️ Web Dev & Video Editing — Kanban Board</h3>
+        <div class="flex gap8 mb12">
+          <input type="text" id="kanbanInput" placeholder="New project/task...">
+          <button class="btn btn-gold" id="kanbanAddBtn">+ Add to To Do</button>
+        </div>
+        <div class="grid g3">
+          <div class="kanban-col" data-col="todo"><div class="stat-label mb12">📋 To Do</div><div id="kanban-todo"></div></div>
+          <div class="kanban-col" data-col="inprogress"><div class="stat-label mb12">🚧 In Progress</div><div id="kanban-inprogress"></div></div>
+          <div class="kanban-col" data-col="done"><div class="stat-label mb12">✅ Done</div><div id="kanban-done"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NOTES & TOOLS -->
+    <section class="section" id="tab-notes">
+      <div class="grid g2 mb16">
+        <div class="card">
+          <div class="flex between center mb12">
+            <h3 style="margin:0">🗒️ Sticky Notes</h3>
+            <button class="btn btn-sm btn-gold" id="addStickyBtn">+ New</button>
+          </div>
+          <div class="grid g2" id="stickyGrid"></div>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">📖 Study Notes</h3>
+          <div class="grid g2 mb8">
+            <input type="text" id="noteTitleInput" placeholder="Note title">
+            <select id="noteSubjectSelect"></select>
+          </div>
+          <textarea id="noteContentInput" placeholder="Write your notes / formulas here..." rows="4" class="mb8"></textarea>
+          <button class="btn btn-gold" id="addNoteBtn">+ Save Note</button>
+          <hr class="div">
+          <div id="notesList" style="max-height:260px; overflow-y:auto"></div>
+        </div>
+      </div>
+
+      <div class="grid g3">
+        <div class="card">
+          <h3 style="margin-top:0">🧮 Calculator</h3>
+          <input type="text" id="calcDisplay" readonly class="mb8 font-mono" style="font-size:20px; text-align:right">
+          <div class="grid" style="grid-template-columns:repeat(4,1fr); gap:6px" id="calcButtons"></div>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">📐 Percentage / Average Calculator</h3>
+          <div class="small mb8">Comma-separate marks to get subject average</div>
+          <input type="text" id="avgInput" placeholder="e.g. 42,53,26,48,52" class="mb8">
+          <button class="btn btn-gold mb12" id="avgCalcBtn">Calculate Average</button>
+          <div id="avgResult" class="stat-val" style="font-size:22px"></div>
+          <hr class="div">
+          <div class="small mb8">Percentage: value ÷ total × 100</div>
+          <div class="flex gap8">
+            <input type="number" id="pctValue" placeholder="Value">
+            <input type="number" id="pctTotal" placeholder="Total">
+          </div>
+          <button class="btn btn-gold mt8" id="pctCalcBtn">Get %</button>
+          <div id="pctResult" class="stat-val mt8" style="font-size:22px"></div>
+        </div>
+        <div class="card">
+          <div class="flex between center mb12">
+            <h3 style="margin:0">🌍 World Clock</h3>
+            <button class="btn btn-sm" id="clockToggleBtn">Toggle Analog</button>
+          </div>
+          <div id="worldClockDigital"></div>
+          <div id="worldClockAnalog" style="display:none; text-align:center">
+            <svg width="150" height="150" viewBox="0 0 150 150" id="analogClockSvg" style="margin:10px auto">
+              <circle cx="75" cy="75" r="70" fill="var(--panel2)" stroke="var(--gold)" stroke-width="2"/>
+              <line id="hourHand" x1="75" y1="75" x2="75" y2="45" stroke="var(--gold-bright)" stroke-width="4" stroke-linecap="round"/>
+              <line id="minHand" x1="75" y1="75" x2="75" y2="30" stroke="var(--cyan)" stroke-width="3" stroke-linecap="round"/>
+              <line id="secHand" x1="75" y1="75" x2="75" y2="20" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="75" cy="75" r="3" fill="var(--gold-bright)"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANALYTICS -->
+    <section class="section" id="tab-analytics">
+      <div class="tab-row">
+        <button class="tab-chip active" data-range="7">7-Day Report</button>
+        <button class="tab-chip" data-range="30">30-Day Report</button>
+      </div>
+      <div class="grid g2 mb16">
+        <div class="card">
+          <h3 style="margin-top:0">Study vs Work vs Sleep Hours</h3>
+          <canvas id="hoursChart" height="220"></canvas>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">Subject Time Distribution</h3>
+          <canvas id="subjectChart" height="220"></canvas>
+        </div>
+      </div>
+      <div class="card mb16">
+        <h3 style="margin-top:0">Weekly Grade Improvement Score</h3>
+        <canvas id="gradeChart" height="150"></canvas>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">Weak Area Trend</h3>
+        <div id="weakAreaTrend"></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="section" id="tab-settings">
+      <div class="card mb16">
+        <h3 style="margin-top:0">👤 Profile</h3>
+        <div class="grid g3">
+          <div><div class="stat-label">Name</div><input type="text" id="settingName"></div>
+          <div><div class="stat-label">Age</div><input type="text" id="settingAge" disabled></div>
+          <div><div class="stat-label">O/L Exam Date</div><input type="date" id="settingExamDate"></div>
+        </div>
+      </div>
+      <div class="card mb16">
+        <h3 style="margin-top:0">📱 Install as App (PWA)</h3>
+        <div class="small">On iPhone Safari: tap Share → "Add to Home Screen". On Android/Desktop Chrome: tap the install icon in the address bar. Works fully offline — all your data is saved on this device via LocalStorage.</div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0" style="color:var(--red)">⚠️ Danger Zone</h3>
+        <div class="small mb12">This clears every task, note, mark, log and setting stored in this browser.</div>
+        <button class="btn btn-danger" id="resetAllBtn">Reset All Data</button>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="mobile-nav" id="mobileNav">
+  <button data-tab="dashboard" class="active"><span class="ic">🖥️</span>Home</button>
+  <button data-tab="timetable"><span class="ic">🗓️</span>Plan</button>
+  <button data-tab="timers"><span class="ic">⏱️</span>Timer</button>
+  <button data-tab="marks"><span class="ic">📊</span>Marks</button>
+  <button data-tab="analytics"><span class="ic">📈</span>Stats</button>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* =========================================================
+   HISHAN STUDY OS 2026 — full client-side application
+   ========================================================= */
+
+const SUBJECTS = ["Sinhala","English","ICT","Mathematics","Science","History","Geography","Religion","Rasaswadaya"];
+
+const RESOURCE_LINKS = {
+  "Sinhala":[{label:"E-Thaksalawa Portal", url:"https://e-thaksalawa.moe.gov.lk"},{label:"Educational Publications Dept.", url:"https://www.edupub.gov.lk"}],
+  "English":[{label:"E-Thaksalawa Portal", url:"https://e-thaksalawa.moe.gov.lk"},{label:"Educational Publications Dept.", url:"https://www.edupub.gov.lk"}],
+  "ICT":[{label:"E-Thaksalawa Portal", url:"https://e-thaksalawa.moe.gov.lk"},{label:"Educational Publications Dept.", url:"https://www.edupub.gov.lk"}],
+  "Mathematics":[{label:"E-Thaksalawa Portal", url:"https://e-thaksalawa.moe.gov.lk"},{label:"Educational Publications Dept.", url:"https://www.edupub.gov.lk"}],
+  "Science":[{label:"E-Thaksalawa Portal", url:"https://e-thaksalawa.moe.gov.lk"},{label:"Educational Publications Dept.", url:"https://www.edupub.gov.lk"}],
+  "History":[{label:"DP Education", url:"https://www.dpeducation.lk"},{label:"E-Thaksalawa Portal", url:"https://e-thaksalawa.moe.gov.lk"}],
+  "Geography":[{label:"E-Thaksalawa Portal", url:"https://e-thaksalawa.moe.gov.lk"},{label:"Educational Publications Dept.", url:"https://www.edupub.gov.lk"}],
+  "Religion":[{label:"E-Thaksalawa Portal", url:"https://e-thaksalawa.moe.gov.lk"},{label:"Educational Publications Dept.", url:"https://www.edupub.gov.lk"}],
+  "Rasaswadaya":[{label:"E-Thaksalawa Portal", url:"https://e-thaksalawa.moe.gov.lk"},{label:"Educational Publications Dept.", url:"https://www.edupub.gov.lk"}]
+};
+
+const FIXED_CLASSES = [
+  {day:5, subject:"ICT", start:"19:00", end:"22:00", label:"ICT Class (Sir Sikura)"},
+  {day:6, subject:"Science", start:"13:00", end:"17:30", label:"Science Class (Grade 10 & 11)"},
+  {day:0, subject:"Mathematics", start:"15:00", end:"18:00", label:"Maths Class (Ishara Madam)"},
+  {day:0, subject:"Science", start:"19:00", end:"23:30", label:"Science Class (Sunday)"}
+];
+// day: 0=Sunday .. 6=Saturday (JS getDay convention)
+
+const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+const DEFAULT_STATE = {
+  profile:{ name:"Hishan Satsara", age:16, examDate:"2026-12-01" },
+  mode:"study",
+  marks:{ "English":26,"Science":42,"ICT":42,"Mathematics":43,"Religion":48,"Rasaswadaya":48,"History":52,"Sinhala":53,"Geography":59 },
+  targets:{ "English":60,"Science":65,"ICT":65,"Mathematics":60,"Religion":60,"Rasaswadaya":60,"History":65,"Sinhala":65,"Geography":70 },
+  sleepWake:{ sleep:"23:00", wake:"05:30" },
+  pomodoroStyle:25,
+  techSlotHours:1.5,
+  tasks:[],
+  timetableByDate:{},
+  studyLog:[],
+  streak:0,
+  lastActiveDate:null,
+  focusHistory:[],
+  notes:[],
+  stickyNotes:[
+    {id:cryptoId(), text:"Finish English essay outline before Friday class", color:"gold"},
+    {id:cryptoId(), text:"Revise ICT database SQL commands", color:"cyan"}
+  ],
+  trades:[],
+  tvLink:"",
+  kanban:{todo:[],inprogress:[],done:[]},
+  alarms:[],
+  pastPapers:[],
+  wellnessOn:true,
+  sleepLogs:{}
+};
+
+function cryptoId(){ return Math.random().toString(36).slice(2,10)+Date.now().toString(36); }
+
+/* ---------- State load/save ---------- */
+let STATE = loadState();
+function loadState(){
+  try{
+    const raw = localStorage.getItem('hishanStudyOS');
+    if(!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    const parsed = JSON.parse(raw);
+    return Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), parsed);
+  }catch(e){ return JSON.parse(JSON.stringify(DEFAULT_STATE)); }
+}
+function saveState(){ localStorage.setItem('hishanStudyOS', JSON.stringify(STATE)); }
+
+function toast(msg){
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className='toast';
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .4s'; setTimeout(()=>el.remove(),400); }, 4200);
+}
+
+function todayKey(d){ d = d || new Date(); return d.toISOString().slice(0,10); }
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+const navItems = document.querySelectorAll('.nav-item, .mobile-nav button');
+function switchTab(tab){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  navItems.forEach(n=>n.classList.toggle('active', n.dataset.tab===tab));
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('show');
+  if(tab==='analytics') renderAnalytics(currentRange);
+  if(tab==='marks') renderMarks();
+  if(tab==='subjects') renderSubjects();
+  if(tab==='timetable') renderTimetable();
+  if(tab==='workspace') renderWorkspace();
+  if(tab==='notes') renderNotesTools();
+}
+navItems.forEach(n=>n.addEventListener('click', ()=>switchTab(n.dataset.tab)));
+document.getElementById('menuToggle').addEventListener('click', ()=>{
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('backdrop').classList.toggle('show');
+});
+document.getElementById('backdrop').addEventListener('click', ()=>{
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('show');
+});
+
+/* =========================================================
+   MODE SWITCHER
+   ========================================================= */
+function applyMode(){
+  const workTab = document.querySelector('.nav-item[data-tab="workspace"]');
+  document.getElementById('btnStudyMode').classList.toggle('active-study', STATE.mode==='study');
+  document.getElementById('btnWorkMode').classList.toggle('active-work', STATE.mode==='work');
+  if(STATE.mode==='study'){
+    workTab.style.display='none';
+    if(document.getElementById('tab-workspace').classList.contains('active')) switchTab('dashboard');
+  } else {
+    workTab.style.display='flex';
+  }
+  document.getElementById('brandSub').textContent = STATE.mode==='study' ? 'Study Mode — Distractions Filtered' : 'Work Mode — Trading / Dev Unlocked';
+}
+document.getElementById('btnStudyMode').addEventListener('click', ()=>{ STATE.mode='study'; saveState(); applyMode(); toast('📚 Study Mode activated'); });
+document.getElementById('btnWorkMode').addEventListener('click', ()=>{ STATE.mode='work'; saveState(); applyMode(); toast('💻 Work Mode activated — Trading & Dev unlocked'); });
+
+/* =========================================================
+   LIVE CLOCK
+   ========================================================= */
+function tickClock(){
+  const now = new Date();
+  document.getElementById('liveClock').textContent = now.toLocaleTimeString('en-GB');
+  document.getElementById('liveDate').textContent = now.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  // OL Countdown
+  const exam = new Date(STATE.profile.examDate+"T00:00:00");
+  const diff = exam - now;
+  if(diff>0){
+    const d = Math.floor(diff/86400000);
+    const h = Math.floor((diff%86400000)/3600000);
+    const m = Math.floor((diff%3600000)/60000);
+    document.getElementById('olCountdown').textContent = d+"d "+h+"h "+m+"m";
+  } else {
+    document.getElementById('olCountdown').textContent = "Exam window!";
+  }
+  updateWorldClockDigital(now);
+  updateAnalogClock(now);
+  checkAlarms(now);
+}
+setInterval(tickClock, 1000);
+
+/* =========================================================
+   DASHBOARD RENDER
+   ========================================================= */
+function computeFocusScore(){
+  const today = todayKey();
+  const logsToday = STATE.studyLog.filter(l=>l.date===today && l.type==='study');
+  const totalStudyMin = logsToday.reduce((a,b)=>a+b.minutes,0);
+  const tasksToday = STATE.tasks.filter(t=>t.date===today);
+  const doneToday = tasksToday.filter(t=>t.done).length;
+  const taskRatio = tasksToday.length ? doneToday/tasksToday.length : 0;
+  const studyRatio = Math.min(totalStudyMin/180,1); // target 3hrs/day baseline
+  const score = Math.round((taskRatio*0.5 + studyRatio*0.5)*100);
+  return score;
+}
+function renderDashboard(){
+  document.getElementById('greetName').textContent = STATE.profile.name;
+  const score = computeFocusScore();
+  document.getElementById('focusScoreVal').textContent = score+"%";
+  document.getElementById('focusScoreBar').style.width = score+"%";
+
+  // streak
+  document.getElementById('streakVal').textContent = STATE.streak+" days";
+
+  // sleep
+  const today = todayKey();
+  const sleepLog = STATE.sleepLogs[today];
+  if(sleepLog){
+    document.getElementById('sleepVal').textContent = sleepLog+" h";
+    document.getElementById('sleepSub').textContent = "Logged for today";
+  } else {
+    document.getElementById('sleepVal').textContent = "-- h";
+    document.getElementById('sleepSub').textContent = "Not logged today";
+  }
+
+  // priority alerts
+  const alertsEl = document.getElementById('priorityAlerts');
+  const weak = Object.entries(STATE.marks).filter(([s,m])=>m<45).sort((a,b)=>a[1]-b[1]);
+  alertsEl.innerHTML = weak.length ? weak.map(([s,m])=>`
+    <div class="flex between center" style="padding:8px 0;border-bottom:1px solid var(--border)">
+      <div><b>${s}</b> <span class="small">— currently ${m} marks</span></div>
+      <span class="pill pill-red">Critical</span>
+    </div>`).join('') : '<div class="empty-state">No critical subjects 🎉</div>';
+
+  // today tasks
+  renderTodayTasks();
+  // today schedule
+  renderTodaySchedule();
+}
+function renderTodayTasks(){
+  const today = todayKey();
+  const list = STATE.tasks.filter(t=>t.date===today);
+  const el = document.getElementById('todayTasksList');
+  if(!list.length){ el.innerHTML='<div class="empty-state">No tasks yet — add one to get started</div>'; return; }
+  el.innerHTML = list.map(t=>`
+    <div class="checklist-item ${t.done?'done':''}">
+      <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${t.id}')" style="width:16px;height:16px">
+      <div class="txt" style="flex:1">${escapeHtml(t.text)} ${t.subject?`<span class="pill pill-gold">${t.subject}</span>`:''}</div>
+      <button class="btn btn-sm btn-danger" onclick="deleteTask('${t.id}')">✕</button>
+    </div>`).join('');
+}
+function toggleTask(id){
+  const t = STATE.tasks.find(x=>x.id===id);
+  t.done = !t.done;
+  if(t.done) registerActivity();
+  saveState(); renderTodayTasks(); renderDashboard();
+}
+function deleteTask(id){ STATE.tasks = STATE.tasks.filter(x=>x.id!==id); saveState(); renderTodayTasks(); }
+document.getElementById('quickAddTaskBtn').addEventListener('click', ()=>{
+  const text = prompt("Task description:");
+  if(!text) return;
+  const subject = prompt("Related subject (optional, e.g. Maths):") || "";
+  STATE.tasks.push({id:cryptoId(), text, subject, done:false, date:todayKey()});
+  saveState(); renderTodayTasks(); renderDashboard();
+});
+
+function renderTodaySchedule(){
+  const now = new Date();
+  const blocks = getBlocksForDate(todayKey());
+  const el = document.getElementById('todayScheduleList');
+  if(!blocks.length){ el.innerHTML = '<div class="empty-state">No timetable generated for today yet. Go to Timetable tab.</div>'; return; }
+  el.innerHTML = blocks.map(b=>`
+    <div class="checklist-item ${b.done?'done':''}">
+      <input type="checkbox" ${b.done?'checked':''} onchange="toggleBlock('${todayKey()}','${b.id}')" style="width:16px;height:16px">
+      <div class="txt" style="flex:1"><b>${b.start}-${b.end}</b> ${escapeHtml(b.label)}</div>
+      <span class="pill ${blockPillClass(b.type)}">${b.type}</span>
+    </div>`).join('');
+}
+function blockPillClass(type){
+  if(type==='class') return 'pill-gold';
+  if(type==='study') return 'pill-cyan';
+  if(type==='break') return 'pill-green';
+  if(type==='tech') return 'pill-orange';
+  return 'pill-red';
+}
+
+function registerActivity(){
+  const today = todayKey();
+  if(STATE.lastActiveDate===today) return;
+  const yesterday = todayKey(new Date(Date.now()-86400000));
+  if(STATE.lastActiveDate===yesterday){ STATE.streak +=1; } else { STATE.streak = 1; }
+  STATE.lastActiveDate = today;
+  saveState();
+}
+
+/* Wellness reminders */
+let lastWater=Date.now(), lastDistraction=Date.now(), lastStretch=Date.now();
+function wellnessTick(){
+  if(!STATE.wellnessOn) return;
+  const now = Date.now();
+  if(now-lastWater > 60*60*1000){ toast('💧 Reminder: Drink some water!'); lastWater=now; }
+  if(now-lastDistraction > 90*60*1000){ toast('📵 Focus check: stay off TikTok/FB!'); lastDistraction=now; }
+  if(now-lastStretch > 45*60*1000){ toast('🧍 Stretch break — stand up for a minute.'); lastStretch=now; }
+}
+setInterval(wellnessTick, 60*1000);
+document.getElementById('wellnessToggle').addEventListener('change', (e)=>{ STATE.wellnessOn = e.target.checked; saveState(); });
+
+/* =========================================================
+   AI SMART SCHEDULER / TIMETABLE
+   ========================================================= */
+function getBlocksForDate(dateStr){
+  return STATE.timetableByDate[dateStr] || [];
+}
+function toggleBlock(dateStr, blockId){
+  const blocks = STATE.timetableByDate[dateStr];
+  const b = blocks.find(x=>x.id===blockId);
+  b.done = !b.done;
+  if(b.done && b.type==='study' && b.subject){
+    STATE.studyLog.push({date:dateStr, subject:b.subject, minutes:b.durationMin, type:'study'});
+  }
+  registerActivity();
+  saveState();
+  renderTimetable(); renderDashboard();
+}
+
+function timeToMin(t){ const [h,m]=t.split(':').map(Number); return h*60+m; }
+function minToTime(m){ m=((m%1440)+1440)%1440; const h=Math.floor(m/60), mm=m%60; return String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0'); }
+
+function generateTimetableForDate(dateObj){
+  const dateStr = todayKey(dateObj);
+  const dayIdx = dateObj.getDay();
+  const wake = timeToMin(STATE.sleepWake.wake);
+  let sleep = timeToMin(STATE.sleepWake.sleep);
+  if(sleep < wake) sleep += 1440; // sleep after midnight relative to wake
+
+  const blocks = [];
+  // fixed classes for this day
+  const classesToday = FIXED_CLASSES.filter(c=>c.day===dayIdx);
+  classesToday.forEach(c=>{
+    blocks.push({id:cryptoId(), start:c.start, end:c.end, label:c.label, subject:c.subject, type:'class', durationMin:timeToMin(c.end)-timeToMin(c.start), done:false});
+  });
+
+  // busy intervals (as minutes from wake, absolute-day scale using wake as 0 reference isn't simple with clock times, so just build on 24h clock with class times converted, handle wrap for sleep-after-midnight
+  const busy = classesToday.map(c=>[timeToMin(c.start), timeToMin(c.end)]);
+
+  // available windows: from wake to sleep(clock), minus busy
+  let cursor = wake;
+  const dayEnd = sleep; // could exceed 1440 if past midnight; we treat minutes on extended scale
+  // build free intervals by scanning sorted busy blocks (convert to extended scale too if needed)
+  const busyExt = busy.map(([s,e])=> s<wake ? [s+1440,e+1440] : [s,e]).sort((a,b)=>a[0]-b[0]);
+  const freeIntervals = [];
+  let c2 = wake;
+  busyExt.forEach(([s,e])=>{
+    if(s>c2) freeIntervals.push([c2,s]);
+    c2 = Math.max(c2,e);
+  });
+  if(c2 < dayEnd) freeIntervals.push([c2, dayEnd]);
+
+  const workMin = STATE.pomodoroStyle==50?50:25;
+  const breakMin = STATE.pomodoroStyle==50?10:5;
+  const techMinutes = STATE.techSlotHours*60;
+
+  // priority order: weakest subjects first
+  const priorityOrder = Object.entries(STATE.marks).sort((a,b)=>a[1]-b[1]).map(x=>x[0]);
+  let subjPointer = 0;
+  let techAllocated = 0;
+  let mealsPlaced = false;
+
+  freeIntervals.forEach(([start,end])=>{
+    let t = start;
+    // reserve a lunch/dinner style gap heuristically: skip generating study directly 12:00-13:00 and 19:30-20:00 as "meal/rest" once
+    while(t < end - 10){
+      let remaining = end - t;
+      // insert tech slot once per day, prefer evening window (after 20:00) if available and not yet allocated
+      if(techAllocated < techMinutes && remaining >= 30 && (t>= timeToMin('20:00') || (end - t) <= techMinutes + 20)){
+        const dur = Math.min(techMinutes-techAllocated, remaining, 120);
+        blocks.push({id:cryptoId(), start:minToTime(t), end:minToTime(t+dur), label:'Tech / Trading / Dev Slot', subject:'', type:'tech', durationMin:dur, done:false});
+        t += dur; techAllocated += dur;
+        continue;
+      }
+      const blockDur = Math.min(workMin, end-t);
+      if(blockDur < 10) break;
+      const subject = priorityOrder[subjPointer % priorityOrder.length];
+      subjPointer++;
+      blocks.push({id:cryptoId(), start:minToTime(t), end:minToTime(t+blockDur), label:'Study: '+subject, subject, type:'study', durationMin:blockDur, done:false});
+      t += blockDur;
+      if(end - t >= breakMin+5){
+        blocks.push({id:cryptoId(), start:minToTime(t), end:minToTime(t+breakMin), label:'Break', subject:'', type:'break', durationMin:breakMin, done:false});
+        t += breakMin;
+      } else break;
+    }
+  });
+
+  blocks.sort((a,b)=>{
+    let am = timeToMin(a.start), bm = timeToMin(b.start);
+    if(am < wake) am += 1440;
+    if(bm < wake) bm += 1440;
+    return am-bm;
+  });
+  STATE.timetableByDate[dateStr] = blocks;
+  saveState();
+}
+
+let selectedTimetableDate = todayKey();
+function renderDayTabs(){
+  const row = document.getElementById('dayTabRow');
+  const days = [];
+  for(let i=0;i<7;i++){ days.push(new Date(Date.now()+i*86400000)); }
+  row.innerHTML = days.map(d=>{
+    const key = todayKey(d);
+    const label = i===undefined?'':'';
+    return `<button class="tab-chip ${key===selectedTimetableDate?'active':''}" data-date="${key}">${d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric'})}</button>`;
+  }).join('');
+  row.querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{ selectedTimetableDate=b.dataset.date; renderTimetable(); }));
+}
+function renderTimetable(){
+  document.getElementById('sleepTimeInput').value = STATE.sleepWake.sleep;
+  document.getElementById('wakeTimeInput').value = STATE.sleepWake.wake;
+  document.getElementById('pomodoroStyleSelect').value = STATE.pomodoroStyle;
+  document.getElementById('techSlotSelect').value = STATE.techSlotHours;
+  renderDayTabs();
+  const blocks = getBlocksForDate(selectedTimetableDate);
+  const el = document.getElementById('timetableList');
+  if(!blocks.length){
+    el.innerHTML = '<div class="empty-state">No timetable for this date yet. Click "Generate Today\'s Timetable" above.</div>';
+    return;
+  }
+  el.innerHTML = blocks.map(b=>`
+    <div class="checklist-item ${b.done?'done':''}">
+      <input type="checkbox" ${b.done?'checked':''} onchange="toggleBlock('${selectedTimetableDate}','${b.id}')" style="width:16px;height:16px">
+      <div class="txt" style="flex:1"><b class="font-mono">${b.start}–${b.end}</b> &nbsp; ${escapeHtml(b.label)}</div>
+      <span class="pill ${blockPillClass(b.type)}">${b.type}</span>
+    </div>`).join('');
+}
+document.getElementById('generateTimetableBtn').addEventListener('click', ()=>{
+  STATE.sleepWake.sleep = document.getElementById('sleepTimeInput').value;
+  STATE.sleepWake.wake = document.getElementById('wakeTimeInput').value;
+  STATE.pomodoroStyle = Number(document.getElementById('pomodoroStyleSelect').value);
+  STATE.techSlotHours = Number(document.getElementById('techSlotSelect').value);
+  saveState();
+  const d = new Date(selectedTimetableDate+"T12:00:00");
+  generateTimetableForDate(d);
+  renderTimetable();
+  renderDashboard();
+  toast('⚡ Timetable generated for '+selectedTimetableDate);
+});
+
+/* =========================================================
+   MARKS
+   ========================================================= */
+function markColor(m){ if(m<45) return {c:'red',label:'Weak'}; if(m<60) return {c:'orange',label:'Average'}; return {c:'green',label:'Strong'}; }
+function renderMarks(){
+  const wrap = document.getElementById('marksTableWrap');
+  let rows = Object.entries(STATE.marks).sort((a,b)=>a[1]-b[1]).map(([s,m])=>{
+    const info = markColor(m);
+    const target = STATE.targets[s]||60;
+    return `<tr>
+      <td><b>${s}</b></td>
+      <td><input type="number" value="${m}" min="0" max="100" style="width:70px" onchange="updateMark('${s}',this.value)"></td>
+      <td><span class="pill pill-${info.c}">${info.label}</span></td>
+      <td>${target}</td>
+      <td><div class="progress-track" style="width:100px"><div class="progress-fill" style="width:${Math.min(m,100)}%;background:var(--${info.c})"></div></div></td>
+    </tr>`;
+  }).join('');
+  wrap.innerHTML = `<table><thead><tr><th>Subject</th><th>Current</th><th>Status</th><th>Target</th><th>Progress</th></tr></thead><tbody>${rows}</tbody></table>`;
+
+  const targetForm = document.getElementById('targetMarksForm');
+  targetForm.innerHTML = SUBJECTS.map(s=>`
+    <div>
+      <div class="stat-label">${s}</div>
+      <input type="number" min="0" max="100" value="${STATE.targets[s]||60}" onchange="updateTarget('${s}',this.value)">
+    </div>`).join('');
+
+  const ppSel = document.getElementById('ppSubjectSelect');
+  ppSel.innerHTML = SUBJECTS.map(s=>`<option value="${s}">${s}</option>`).join('');
+  renderPastPapers();
+}
+function updateMark(s,v){ STATE.marks[s]=Number(v); saveState(); renderMarks(); renderDashboard(); }
+function updateTarget(s,v){ STATE.targets[s]=Number(v); saveState(); }
+
+function renderPastPapers(){
+  const el = document.getElementById('pastPapersList');
+  if(!STATE.pastPapers.length){ el.innerHTML='<div class="empty-state">No past papers logged yet.</div>'; return; }
+  el.innerHTML = `<table><thead><tr><th>Subject</th><th>Year</th><th>Marks</th><th>Date</th><th></th></tr></thead><tbody>${
+    STATE.pastPapers.slice().reverse().map(p=>`<tr>
+      <td>${p.subject}</td><td>${p.year}</td><td>${p.marks}/100</td><td class="small">${p.date}</td>
+      <td><button class="btn btn-sm btn-danger" onclick="deletePastPaper('${p.id}')">✕</button></td>
+    </tr>`).join('')
+  }</tbody></table>`;
+}
+document.getElementById('ppAddBtn').addEventListener('click', ()=>{
+  const subject = document.getElementById('ppSubjectSelect').value;
+  const year = document.getElementById('ppYearInput').value.trim();
+  const marks = Number(document.getElementById('ppMarksInput').value);
+  if(!year || isNaN(marks)){ toast('Enter year & marks'); return; }
+  STATE.pastPapers.push({id:cryptoId(), subject, year, marks, date:todayKey()});
+  saveState();
+  document.getElementById('ppYearInput').value=''; document.getElementById('ppMarksInput').value='';
+  renderPastPapers();
+  toast('📄 Past paper logged');
+});
+function deletePastPaper(id){ STATE.pastPapers = STATE.pastPapers.filter(p=>p.id!==id); saveState(); renderPastPapers(); }
+
+/* =========================================================
+   SUBJECTS
+   ========================================================= */
+let activeSubject = SUBJECTS[0];
+function renderSubjects(){
+  const row = document.getElementById('subjectTabRow');
+  row.innerHTML = SUBJECTS.map(s=>`<button class="tab-chip ${s===activeSubject?'active':''}" data-subj="${s}">${s}</button>`).join('');
+  row.querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{ activeSubject=b.dataset.subj; renderSubjects(); }));
+  const m = STATE.marks[activeSubject];
+  const info = markColor(m);
+  const links = RESOURCE_LINKS[activeSubject]||[];
+  const logMinutes = STATE.studyLog.filter(l=>l.subject===activeSubject).reduce((a,b)=>a+b.minutes,0);
+  document.getElementById('subjectDetailCard').innerHTML = `
+    <div class="flex between center wrap gap12 mb16">
+      <h2 style="margin:0">${activeSubject}</h2>
+      <span class="pill pill-${info.c}">${info.label} — ${m} marks</span>
+    </div>
+    <div class="grid g3 mb16">
+      <div class="card" style="background:var(--panel2)"><div class="stat-label">Current Mark</div><div class="stat-val">${m}</div></div>
+      <div class="card" style="background:var(--panel2)"><div class="stat-label">Target Mark</div><div class="stat-val" style="color:var(--gold-bright)">${STATE.targets[activeSubject]||60}</div></div>
+      <div class="card" style="background:var(--panel2)"><div class="stat-label">Total Time Logged</div><div class="stat-val" style="color:var(--cyan)">${(logMinutes/60).toFixed(1)}h</div></div>
+    </div>
+    <h3>📎 Resource Library</h3>
+    <div class="flex gap8 wrap mb16">
+      ${links.map(l=>`<a href="${l.url}" target="_blank" class="btn">🔗 ${l.label}</a>`).join('')}
+    </div>
+    <h3>📝 Notes tagged "${activeSubject}"</h3>
+    <div>${
+      STATE.notes.filter(n=>n.subject===activeSubject).map(n=>`
+        <div class="card mb8" style="background:var(--panel2)"><b>${escapeHtml(n.title)}</b><div class="small mt8">${escapeHtml(n.content)}</div></div>
+      `).join('') || '<div class="empty-state">No notes yet for this subject.</div>'
+    }</div>
+  `;
+}
+
+/* =========================================================
+   WORKSPACE — Trading + Kanban
+   ========================================================= */
+function renderWorkspace(){
+  document.getElementById('tvLinkInput').value = STATE.tvLink||'';
+  renderTrades();
+  renderKanban();
+}
+document.getElementById('tvLinkInput').addEventListener('change', (e)=>{ STATE.tvLink=e.target.value; saveState(); });
+document.getElementById('addTradeBtn').addEventListener('click', ()=>{
+  const pair = document.getElementById('tradePairInput').value.trim();
+  const rr = document.getElementById('tradeRRInput').value.trim();
+  const pnl = document.getElementById('tradePnlInput').value.trim();
+  const notes = document.getElementById('tradeNotesInput').value.trim();
+  if(!pair){ toast('Enter a trade pair'); return; }
+  STATE.trades.push({id:cryptoId(), pair, rr, pnl, notes, date:todayKey()});
+  saveState();
+  ['tradePairInput','tradeRRInput','tradePnlInput','tradeNotesInput'].forEach(id=>document.getElementById(id).value='');
+  renderTrades();
+  toast('💹 Trade logged');
+});
+function renderTrades(){
+  const el = document.getElementById('tradeList');
+  if(!STATE.trades.length){ el.innerHTML='<div class="empty-state">No trades logged yet.</div>'; return; }
+  el.innerHTML = `<table><thead><tr><th>Pair</th><th>R:R</th><th>P/L</th><th>Notes</th><th>Date</th><th></th></tr></thead><tbody>${
+    STATE.trades.slice().reverse().map(t=>`<tr>
+      <td><b>${escapeHtml(t.pair)}</b></td><td>${escapeHtml(t.rr)}</td>
+      <td style="color:${(t.pnl+'').includes('-')?'var(--red)':'var(--green)'}">${escapeHtml(t.pnl)}</td>
+      <td class="small">${escapeHtml(t.notes)}</td><td class="small">${t.date}</td>
+      <td><button class="btn btn-sm btn-danger" onclick="deleteTrade('${t.id}')">✕</button></td>
+    </tr>`).join('')
+  }</tbody></table>`;
+}
+function deleteTrade(id){ STATE.trades = STATE.trades.filter(t=>t.id!==id); saveState(); renderTrades(); }
+
+document.getElementById('kanbanAddBtn').addEventListener('click', ()=>{
+  const val = document.getElementById('kanbanInput').value.trim();
+  if(!val) return;
+  STATE.kanban.todo.push({id:cryptoId(), text:val});
+  document.getElementById('kanbanInput').value='';
+  saveState(); renderKanban();
+});
+function renderKanban(){
+  ['todo','inprogress','done'].forEach(col=>{
+    const el = document.getElementById('kanban-'+col);
+    el.innerHTML = STATE.kanban[col].map(item=>`
+      <div class="kanban-card">
+        <div>${escapeHtml(item.text)}</div>
+        <div class="flex gap8 mt8">
+          ${col!=='todo'?`<button class="btn btn-sm" onclick="moveKanban('${item.id}','${col}','back')">←</button>`:''}
+          ${col!=='done'?`<button class="btn btn-sm btn-gold" onclick="moveKanban('${item.id}','${col}','fwd')">→</button>`:''}
+          <button class="btn btn-sm btn-danger" onclick="deleteKanban('${item.id}','${col}')">✕</button>
+        </div>
+      </div>`).join('') || '<div class="empty-state">Empty</div>';
+  });
+}
+function moveKanban(id,col,dir){
+  const order = ['todo','inprogress','done'];
+  const idx = order.indexOf(col);
+  const newIdx = dir==='fwd'?idx+1:idx-1;
+  if(newIdx<0||newIdx>2) return;
+  const item = STATE.kanban[col].find(x=>x.id===id);
+  STATE.kanban[col] = STATE.kanban[col].filter(x=>x.id!==id);
+  STATE.kanban[order[newIdx]].push(item);
+  saveState(); renderKanban();
+}
+function deleteKanban(id,col){ STATE.kanban[col] = STATE.kanban[col].filter(x=>x.id!==id); saveState(); renderKanban(); }
+
+/* =========================================================
+   NOTES & TOOLS
+   ========================================================= */
+function renderNotesTools(){
+  const sel = document.getElementById('noteSubjectSelect');
+  sel.innerHTML = SUBJECTS.map(s=>`<option value="${s}">${s}</option>`).join('');
+  const pomoSubjSel = document.getElementById('pomoSubjectSelect');
+  const swSubjSel = document.getElementById('stopwatchSubjectSelect');
+  [pomoSubjSel, swSubjSel].forEach(elSel=>{ elSel.innerHTML = SUBJECTS.concat(['Tech/Work']).map(s=>`<option value="${s}">${s}</option>`).join(''); });
+  renderStickies();
+  renderNotesList();
+  buildCalculator();
+  updateWorldClockDigital(new Date());
+}
+document.getElementById('addStickyBtn').addEventListener('click', ()=>{
+  const text = prompt('Sticky note text:');
+  if(!text) return;
+  const colors=['gold','cyan','red','slate'];
+  STATE.stickyNotes.push({id:cryptoId(), text, color:colors[Math.floor(Math.random()*colors.length)]});
+  saveState(); renderStickies();
+});
+function renderStickies(){
+  const el = document.getElementById('stickyGrid');
+  el.innerHTML = STATE.stickyNotes.map(s=>`
+    <div class="sticky c-${s.color}">
+      <button class="btn btn-sm btn-danger" style="position:absolute; top:8px; right:8px" onclick="deleteSticky('${s.id}')">✕</button>
+      ${escapeHtml(s.text)}
+    </div>`).join('') || '<div class="empty-state">No sticky notes yet.</div>';
+}
+function deleteSticky(id){ STATE.stickyNotes = STATE.stickyNotes.filter(s=>s.id!==id); saveState(); renderStickies(); }
+
+document.getElementById('addNoteBtn').addEventListener('click', ()=>{
+  const title = document.getElementById('noteTitleInput').value.trim();
+  const subject = document.getElementById('noteSubjectSelect').value;
+  const content = document.getElementById('noteContentInput').value.trim();
+  if(!title || !content){ toast('Add a title and content'); return; }
+  STATE.notes.push({id:cryptoId(), title, subject, content, date:todayKey()});
+  saveState();
+  document.getElementById('noteTitleInput').value=''; document.getElementById('noteContentInput').value='';
+  renderNotesList();
+  toast('📖 Note saved');
+});
+function renderNotesList(){
+  const el = document.getElementById('notesList');
+  if(!STATE.notes.length){ el.innerHTML='<div class="empty-state">No notes yet.</div>'; return; }
+  el.innerHTML = STATE.notes.slice().reverse().map(n=>`
+    <div class="card mb8" style="background:var(--panel2)">
+      <div class="flex between center">
+        <b>${escapeHtml(n.title)}</b>
+        <div class="flex gap8 center"><span class="pill pill-gold">${n.subject}</span><button class="btn btn-sm btn-danger" onclick="deleteNote('${n.id}')">✕</button></div>
+      </div>
+      <div class="small mt8">${escapeHtml(n.content)}</div>
+    </div>`).join('');
+}
+function deleteNote(id){ STATE.notes = STATE.notes.filter(n=>n.id!==id); saveState(); renderNotesList(); }
+
+function buildCalculator(){
+  const disp = document.getElementById('calcDisplay');
+  disp.value='0';
+  const keys = ['7','8','9','/','4','5','6','*','1','2','3','-','0','.','=','+','C'];
+  const btnWrap = document.getElementById('calcButtons');
+  btnWrap.innerHTML = keys.map(k=>`<button class="btn" data-key="${k}" style="padding:12px 0">${k}</button>`).join('');
+  let expr='';
+  btnWrap.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const k = b.dataset.key;
+      if(k==='C'){ expr=''; disp.value='0'; return; }
+      if(k==='='){
+        try{ expr = expr.replace(/[^0-9+\-*/.]/g,''); disp.value = String(Function('"use strict";return('+expr+')')()); expr=disp.value; }
+        catch(e){ disp.value='Error'; expr=''; }
+        return;
+      }
+      expr += k; disp.value = expr;
+    });
+  });
+}
+document.getElementById('avgCalcBtn').addEventListener('click', ()=>{
+  const vals = document.getElementById('avgInput').value.split(',').map(v=>Number(v.trim())).filter(v=>!isNaN(v));
+  if(!vals.length){ document.getElementById('avgResult').textContent=''; return; }
+  const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+  document.getElementById('avgResult').textContent = 'Average: '+avg.toFixed(2);
+});
+document.getElementById('pctCalcBtn').addEventListener('click', ()=>{
+  const v = Number(document.getElementById('pctValue').value);
+  const t = Number(document.getElementById('pctTotal').value);
+  if(!t){ document.getElementById('pctResult').textContent=''; return; }
+  document.getElementById('pctResult').textContent = ((v/t)*100).toFixed(2)+'%';
+});
+
+/* World clock */
+const WORLD_ZONES = [
+  {city:'Colombo', tz:'Asia/Colombo'},
+  {city:'London', tz:'Europe/London'},
+  {city:'New York', tz:'America/New_York'},
+  {city:'Tokyo', tz:'Asia/Tokyo'},
+  {city:'Dubai', tz:'Asia/Dubai'}
+];
+function updateWorldClockDigital(now){
+  const el = document.getElementById('worldClockDigital');
+  if(!el || document.getElementById('tab-notes').classList.contains('active')===false) return;
+  el.innerHTML = WORLD_ZONES.map(z=>{
+    const t = now.toLocaleTimeString('en-GB',{timeZone:z.tz});
+    return `<div class="flex between center" style="padding:6px 0;border-bottom:1px solid var(--border)"><span class="small">${z.city}</span><span class="font-mono">${t}</span></div>`;
+  }).join('');
+}
+document.getElementById('clockToggleBtn').addEventListener('click', ()=>{
+  const d = document.getElementById('worldClockDigital');
+  const a = document.getElementById('worldClockAnalog');
+  const showAnalog = a.style.display==='none';
+  a.style.display = showAnalog?'block':'none';
+  d.style.display = showAnalog?'none':'block';
+});
+function updateAnalogClock(now){
+  const h = now.getHours()%12, m = now.getMinutes(), s = now.getSeconds();
+  const hDeg = (h*30)+(m*0.5);
+  const mDeg = m*6;
+  const sDeg = s*6;
+  const hourHand = document.getElementById('hourHand');
+  const minHand = document.getElementById('minHand');
+  const secHand = document.getElementById('secHand');
+  if(hourHand){
+    hourHand.setAttribute('transform', `rotate(${hDeg} 75 75)`);
+    minHand.setAttribute('transform', `rotate(${mDeg} 75 75)`);
+    secHand.setAttribute('transform', `rotate(${sDeg} 75 75)`);
+  }
+}
+
+/* =========================================================
+   POMODORO TIMER
+   ========================================================= */
+let pomoWorkSec = 25*60, pomoBreakSec = 5*60;
+let pomoRemaining = pomoWorkSec;
+let pomoPhase = 'Focus';
+let pomoInterval = null;
+let pomoRunning = false;
+const POMO_CIRC = 616;
+
+function setPomoStyle(work,brk){
+  pomoWorkSec = work*60; pomoBreakSec = brk*60; pomoRemaining = pomoWorkSec; pomoPhase='Focus';
+  updatePomoDisplay();
+}
+document.getElementById('pomo25Btn').addEventListener('click', ()=>setPomoStyle(25,5));
+document.getElementById('pomo50Btn').addEventListener('click', ()=>setPomoStyle(50,10));
+document.getElementById('pomoCustomBtn').addEventListener('click', ()=>{
+  document.getElementById('pomoCustomInputs').style.display='flex';
+});
+document.getElementById('customWorkMin').addEventListener('change', applyCustomPomo);
+document.getElementById('customBreakMin').addEventListener('change', applyCustomPomo);
+function applyCustomPomo(){
+  const w = Number(document.getElementById('customWorkMin').value)||25;
+  const b = Number(document.getElementById('customBreakMin').value)||5;
+  setPomoStyle(w,b);
+}
+function updatePomoDisplay(){
+  const mm = String(Math.floor(pomoRemaining/60)).padStart(2,'0');
+  const ss = String(pomoRemaining%60).padStart(2,'0');
+  document.getElementById('pomoDisplay').textContent = mm+':'+ss;
+  document.getElementById('pomoPhaseLabel').textContent = pomoPhase;
+  const total = pomoPhase==='Focus'?pomoWorkSec:pomoBreakSec;
+  const frac = 1-(pomoRemaining/total);
+  document.getElementById('pomoProgressCircle').setAttribute('stroke-dashoffset', String(POMO_CIRC*(1-frac)));
+}
+function playBeep(){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 880; g.gain.value = 0.15;
+    o.start(); setTimeout(()=>{o.stop(); ctx.close();}, 350);
+  }catch(e){}
+}
+document.getElementById('pomoStartBtn').addEventListener('click', ()=>{
+  if(pomoRunning) return;
+  pomoRunning = true;
+  pomoInterval = setInterval(()=>{
+    pomoRemaining--;
+    if(pomoRemaining<=0){
+      playBeep();
+      if(pomoPhase==='Focus'){
+        const subj = document.getElementById('pomoSubjectSelect').value;
+        STATE.studyLog.push({date:todayKey(), subject:subj, minutes:pomoWorkSec/60, type: subj==='Tech/Work'?'work':'study'});
+        registerActivity(); saveState();
+        toast('✅ Focus session complete! Break time.');
+        pomoPhase='Break'; pomoRemaining=pomoBreakSec;
+      } else {
+        toast('⏰ Break over! Back to focus.');
+        pomoPhase='Focus'; pomoRemaining=pomoWorkSec;
+      }
+    }
+    updatePomoDisplay();
+  },1000);
+});
+document.getElementById('pomoPauseBtn').addEventListener('click', ()=>{ clearInterval(pomoInterval); pomoRunning=false; });
+document.getElementById('pomoResetBtn').addEventListener('click', ()=>{
+  clearInterval(pomoInterval); pomoRunning=false; pomoPhase='Focus'; pomoRemaining=pomoWorkSec; updatePomoDisplay();
+});
+
+/* =========================================================
+   STOPWATCH
+   ========================================================= */
+let swSeconds = 0, swInterval=null, swRunning=false;
+function updateSwDisplay(){
+  const h = String(Math.floor(swSeconds/3600)).padStart(2,'0');
+  const m = String(Math.floor((swSeconds%3600)/60)).padStart(2,'0');
+  const s = String(swSeconds%60).padStart(2,'0');
+  document.getElementById('stopwatchDisplay').textContent = `${h}:${m}:${s}`;
+}
+document.getElementById('swStartBtn').addEventListener('click', ()=>{
+  if(swRunning) return; swRunning=true;
+  swInterval = setInterval(()=>{ swSeconds++; updateSwDisplay(); },1000);
+});
+document.getElementById('swPauseBtn').addEventListener('click', ()=>{ clearInterval(swInterval); swRunning=false; });
+document.getElementById('swSaveBtn').addEventListener('click', ()=>{
+  if(swSeconds<1){ toast('Timer is at 0'); return; }
+  const subject = document.getElementById('stopwatchSubjectSelect').value;
+  const type = document.getElementById('stopwatchTypeSelect').value;
+  STATE.studyLog.push({date:todayKey(), subject, minutes: Math.round(swSeconds/60), type});
+  registerActivity(); saveState();
+  clearInterval(swInterval); swRunning=false; swSeconds=0; updateSwDisplay();
+  renderTodayLoggedHours();
+  toast('💾 Session logged');
+});
+function renderTodayLoggedHours(){
+  const today = todayKey();
+  const logs = STATE.studyLog.filter(l=>l.date===today);
+  const el = document.getElementById('todayLoggedHours');
+  if(!logs.length){ el.innerHTML='No sessions logged today yet.'; return; }
+  const bySubj = {};
+  logs.forEach(l=>{ bySubj[l.subject]=(bySubj[l.subject]||0)+l.minutes; });
+  el.innerHTML = Object.entries(bySubj).map(([s,m])=>`<div class="flex between"><span>${s}</span><span>${(m/60).toFixed(1)}h</span></div>`).join('');
+}
+
+/* =========================================================
+   ALARMS
+   ========================================================= */
+document.getElementById('addAlarmBtn').addEventListener('click', ()=>{
+  const time = document.getElementById('newAlarmTime').value;
+  const label = document.getElementById('newAlarmLabel').value.trim() || 'Reminder';
+  if(!time){ toast('Pick a time'); return; }
+  STATE.alarms.push({id:cryptoId(), time, label, enabled:true, lastFired:null});
+  saveState();
+  document.getElementById('newAlarmLabel').value='';
+  renderAlarms();
+  toast('⏰ Alarm added');
+});
+document.querySelectorAll('[data-preset]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    const [time,label] = b.dataset.preset.split('|');
+    STATE.alarms.push({id:cryptoId(), time, label, enabled:true, lastFired:null});
+    saveState(); renderAlarms(); toast('⏰ Preset alarm added: '+label);
+  });
+});
+function renderAlarms(){
+  const el = document.getElementById('alarmsList');
+  if(!STATE.alarms.length){ el.innerHTML='<div class="empty-state">No alarms set.</div>'; return; }
+  el.innerHTML = STATE.alarms.slice().sort((a,b)=>a.time.localeCompare(b.time)).map(a=>`
+    <div class="checklist-item">
+      <input type="checkbox" ${a.enabled?'checked':''} onchange="toggleAlarm('${a.id}')" style="width:16px;height:16px">
+      <div class="txt" style="flex:1"><b class="font-mono">${a.time}</b> — ${escapeHtml(a.label)}</div>
+      <button class="btn btn-sm btn-danger" onclick="deleteAlarm('${a.id}')">✕</button>
+    </div>`).join('');
+}
+function toggleAlarm(id){ const a=STATE.alarms.find(x=>x.id===id); a.enabled=!a.enabled; saveState(); }
+function deleteAlarm(id){ STATE.alarms = STATE.alarms.filter(a=>a.id!==id); saveState(); renderAlarms(); }
+function checkAlarms(now){
+  const hhmm = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  const today = todayKey();
+  STATE.alarms.forEach(a=>{
+    if(a.enabled && a.time===hhmm && a.lastFired!==today+hhmm){
+      a.lastFired = today+hhmm;
+      toast('⏰ ALARM: '+a.label);
+      playBeep();
+      saveState();
+    }
+  });
+}
+
+/* =========================================================
+   ANALYTICS
+   ========================================================= */
+let currentRange = 7;
+let hoursChartInst, subjectChartInst, gradeChartInst;
+document.querySelectorAll('[data-range]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('[data-range]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    currentRange = Number(b.dataset.range);
+    renderAnalytics(currentRange);
+  });
+});
+function lastNDates(n){
+  const arr=[];
+  for(let i=n-1;i>=0;i--) arr.push(todayKey(new Date(Date.now()-i*86400000)));
+  return arr;
+}
+function renderAnalytics(range){
+  const dates = lastNDates(range);
+  const studyH=[], workH=[], sleepH=[];
+  dates.forEach(d=>{
+    const logs = STATE.studyLog.filter(l=>l.date===d);
+    studyH.push(+(logs.filter(l=>l.type==='study').reduce((a,b)=>a+b.minutes,0)/60).toFixed(2));
+    workH.push(+(logs.filter(l=>l.type==='work').reduce((a,b)=>a+b.minutes,0)/60).toFixed(2));
+    sleepH.push(STATE.sleepLogs[d]||0);
+  });
+  const ctx1 = document.getElementById('hoursChart');
+  if(hoursChartInst) hoursChartInst.destroy();
+  hoursChartInst = new Chart(ctx1, {
+    type:'bar',
+    data:{ labels:dates.map(d=>d.slice(5)), datasets:[
+      {label:'Study', data:studyH, backgroundColor:'#3fe8d7'},
+      {label:'Work', data:workH, backgroundColor:'#d4af37'},
+      {label:'Sleep', data:sleepH, backgroundColor:'#8b8fa8'}
+    ]},
+    options:{ responsive:true, plugins:{legend:{labels:{color:'#eae8f2'}}}, scales:{x:{ticks:{color:'#8b8fa8'},grid:{color:'#20233a'}}, y:{ticks:{color:'#8b8fa8'},grid:{color:'#20233a'}}} }
+  });
+
+  const bySubj={};
+  STATE.studyLog.filter(l=>dates.includes(l.date) && l.type==='study').forEach(l=>{ bySubj[l.subject]=(bySubj[l.subject]||0)+l.minutes; });
+  const ctx2 = document.getElementById('subjectChart');
+  if(subjectChartInst) subjectChartInst.destroy();
+  const subjLabels = Object.keys(bySubj);
+  subjectChartInst = new Chart(ctx2, {
+    type:'doughnut',
+    data:{ labels: subjLabels.length?subjLabels:['No data yet'], datasets:[{ data: subjLabels.length?Object.values(bySubj):[1], backgroundColor:['#d4af37','#3fe8d7','#ff5c72','#ffb454','#3ddc97','#8b8fa8','#7c5cff','#ff9fd0','#5cc8ff'] }] },
+    options:{ responsive:true, plugins:{legend:{position:'bottom',labels:{color:'#eae8f2',boxWidth:10,font:{size:10}}}} }
+  });
+
+  // grade improvement — compare marks to targets as a weekly proxy score
+  const ctx3 = document.getElementById('gradeChart');
+  if(gradeChartInst) gradeChartInst.destroy();
+  const gradeLabels = SUBJECTS;
+  const gradeData = SUBJECTS.map(s=> STATE.marks[s]||0);
+  const targetData = SUBJECTS.map(s=> STATE.targets[s]||60);
+  gradeChartInst = new Chart(ctx3, {
+    type:'line',
+    data:{ labels:gradeLabels, datasets:[
+      {label:'Current', data:gradeData, borderColor:'#3fe8d7', backgroundColor:'rgba(63,232,215,0.15)', tension:.3, fill:true},
+      {label:'Target', data:targetData, borderColor:'#d4af37', borderDash:[6,4], tension:.3}
+    ]},
+    options:{ responsive:true, plugins:{legend:{labels:{color:'#eae8f2'}}}, scales:{x:{ticks:{color:'#8b8fa8'},grid:{color:'#20233a'}}, y:{ticks:{color:'#8b8fa8'},grid:{color:'#20233a'}}} }
+  });
+
+  const weak = Object.entries(STATE.marks).filter(([s,m])=>m<60).sort((a,b)=>a[1]-b[1]);
+  document.getElementById('weakAreaTrend').innerHTML = weak.map(([s,m])=>{
+    const info = markColor(m);
+    const gap = (STATE.targets[s]||60) - m;
+    return `<div class="flex between center" style="padding:8px 0;border-bottom:1px solid var(--border)">
+      <span><b>${s}</b> <span class="pill pill-${info.c}">${m}</span></span>
+      <span class="small">Needs +${gap} to hit target</span>
+    </div>`;
+  }).join('') || '<div class="empty-state">All subjects at or above 60 🎉</div>';
+}
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+function renderSettings(){
+  document.getElementById('settingName').value = STATE.profile.name;
+  document.getElementById('settingAge').value = STATE.profile.age;
+  document.getElementById('settingExamDate').value = STATE.profile.examDate;
+}
+document.getElementById('settingName').addEventListener('change', e=>{ STATE.profile.name=e.target.value; saveState(); renderDashboard(); });
+document.getElementById('settingExamDate').addEventListener('change', e=>{ STATE.profile.examDate=e.target.value; saveState(); });
+document.getElementById('resetAllBtn').addEventListener('click', ()=>{
+  if(confirm('This will permanently erase all saved data on this device. Continue?')){
+    localStorage.removeItem('hishanStudyOS');
+    location.reload();
+  }
+});
+
+/* =========================================================
+   UTIL
+   ========================================================= */
+function escapeHtml(str){
+  return (str||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+function init(){
+  applyMode();
+  renderDashboard();
+  renderTimetable();
+  renderMarks();
+  renderSubjects();
+  renderNotesTools();
+  renderAlarms();
+  renderWorkspace();
+  renderSettings();
+  renderTodayLoggedHours();
+  tickClock();
+  updatePomoDisplay();
+  updateSwDisplay();
+  switchTab('dashboard');
+}
+init();
+</script>
+</body>
+</html>
